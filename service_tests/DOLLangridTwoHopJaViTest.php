@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__FILE__) . '/../helper/autoload.php';
-
 class DOLLangridTwoHopJaViTest extends PHPUnit_Framework_TestCase implements DOLServiceTest {
     var $setting;
 
@@ -9,7 +7,7 @@ class DOLLangridTwoHopJaViTest extends PHPUnit_Framework_TestCase implements DOL
     var $responseTimeLimit = 3000;
 
     public function setUp() {
-        $this->setting = json_decode(file_get_contents(dirname(__FILE__) . '/../config/langrid.json'));
+        $this->setting = json_decode(file_get_contents(dirname(__FILE__) . '/../config/servicetests/langrid.json'));
     }
 
     private function buildService($client) {
@@ -21,12 +19,12 @@ class DOLLangridTwoHopJaViTest extends PHPUnit_Framework_TestCase implements DOL
     }
 
     public function testTranslation() {
-           $text = 'こんにちは。私は今日は百万遍に来ています。';
+        $text = 'こんにちは。私は今日は百万遍に来ています。';
 
-           $client = ClientFactory::createMultihopTranslationClient($this->setting->url . 'kyoto1.langrid:TwoHopTranslation');
+        $client = ClientFactory::createMultihopTranslationClient($this->setting->url . 'kyoto1.langrid:TwoHopTranslation');
 
-           $client->addBindings(new BindingNode('FirstTranslationPL', 'KyotoUJServer', 'kyoto1.langrid'));
-           $client->addBindings(new BindingNode('SecondTranslationPL', 'GoogleTranslate', 'kyoto1.langrid'));
+        $client->addBindings(new BindingNode('FirstTranslationPL', 'KyotoUJServer', 'kyoto1.langrid'));
+        $client->addBindings(new BindingNode('SecondTranslationPL', 'GoogleTranslate', 'kyoto1.langrid'));
 
         $this->buildService($client);
         $result = $client->multihopTranslate(Language::get('ja'), array(Language::get('en')), Language::get('vi'), $text);
@@ -41,6 +39,7 @@ class DOLLangridTwoHopJaViTest extends PHPUnit_Framework_TestCase implements DOL
         $stime = microtime(true);
         $this->testTranslation();
         $etime = microtime(true);
-        $this->assertTrue(($etime - $stime) / 1000 < $this->responseTimeLimit, 'Response time exceeds limit.');
+        $t = ($etime - $stime) * 1000;
+        return array('time' => $t, 'degraded' => ($t > $this->responseTimeLimit));
     }
 }

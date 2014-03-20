@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__FILE__) . '/../helper/autoload.php';
-
 class DOLLangridJServerJaEnTest extends PHPUnit_Framework_TestCase implements DOLServiceTest {
     var $setting;
 
@@ -9,7 +7,7 @@ class DOLLangridJServerJaEnTest extends PHPUnit_Framework_TestCase implements DO
     var $responseTimeLimit = 3000;
 
     public function setUp() {
-        $this->setting = json_decode(file_get_contents(dirname(__FILE__) . '/../config/langrid.json'));
+        $this->setting = json_decode(file_get_contents(dirname(__FILE__) . '/../config/servicetests/langrid.json'));
     }
 
     private function buildService($client) {
@@ -21,7 +19,7 @@ class DOLLangridJServerJaEnTest extends PHPUnit_Framework_TestCase implements DO
     }
 
     public function testTranslation() {
-           $text = 'こんにちは。私は今日は百万遍に来ています。';
+        $text = 'こんにちは。私は今日は百万遍に来ています。';
 
         $client = ClientFactory::createTranslationClient($this->setting->url . 'kyoto1.langrid:KyotoUJServer');
         $this->buildService($client);
@@ -30,13 +28,14 @@ class DOLLangridJServerJaEnTest extends PHPUnit_Framework_TestCase implements DO
     }
 
     public function testConnection() {
-
+        // do nothing.
     }
 
     public function testResponseTime() {
         $stime = microtime(true);
         $this->testTranslation();
         $etime = microtime(true);
-        $this->assertTrue(($etime - $stime) / 1000 < $this->responseTimeLimit, 'Response time exceeds limit.');
+        $t = ($etime - $stime) * 1000;
+        return array('time' => $t, 'degraded' => ($t > $this->responseTimeLimit));
     }
 }
