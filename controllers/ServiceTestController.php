@@ -41,7 +41,7 @@ class ServiceTestController {
                 ServiceTestStatus::create(array(
                         'service_test_id' => $c->id,
                         'run_date' => new ActiveRecord\DateTime('1970-01-01 00:00:00'),
-                        'status' => ServiceTestStatus::STATUS_UNKNOWN,
+                        'status' => ServiceTestStatus::STATUS_EXPIRED,
                         'response_time' => 0
                 ));
 
@@ -49,10 +49,69 @@ class ServiceTestController {
         }
     }
 
-    public static function getCurrentStatus() {
-        $status = ServiceTestStatus::STATUS_UNKNOWN;
+    public static function getCurrentStatus($cnf = null) {
+        if ($cnf == null) {
+            return self::getCurrentStatusAll();
+        }
+
+        return self::getCurrentStatusByConfig(
+            ConfigService::find('all', array('conditions' => array('name=?', $cnf))));
+    }
+
+    protected static function getCurrentStatusByConfig(ConfigService $cnf) {
+        if ($cnf == null || count($cnf) < 1) {
+            return array();
+        }
+
+        $id = array();
+        foreach ($cnf as $c) {
+            $id[] = $c->service_test_id;
+        }
+        $ids = implode(',', $id);
+
+        $status = ServiceTestStatus::STATUS_EXPIRED;
         $dtime = new ActiveRecord\DateTime(
-            date('c', time() - ServiceTestController::$testExpires));
+            date('c', time() - self::$testExpires));
+        $expire = $dtime->format('db');
+
+        $sql = <<<SQL
+select
+  t.ID
+ ,t.SERVICE_TEST_ID
+ ,t.RUN_DATE
+ ,case
+  when RUN_DATE < '{$expire}'
+  then '{$status}'
+  else t.STATUS
+  end as STATUS
+ ,t.RESPONSE_TIME
+from
+  `SERVICE_TEST_STATUSES` t
+inner join
+ (select
+    SERVICE_TEST_ID
+   ,max(RUN_DATE) as LAST_RUN_DATE
+  from
+    SERVICE_TEST_STATUSES s
+  inner join
+    CONFIG_SERVICES c
+  on
+    s.SERVICE_TEST_ID in ({$ids})
+  group by
+    SERVICE_TEST_ID) l
+on
+  t.SERVICE_TEST_ID = l.SERVICE_TEST_ID
+  and t.RUN_DATE = l.LAST_RUN_DATE
+SQL
+            ;
+
+        return ServiceTestStatus::find_by_sql($sql);
+    }
+
+    protected static function getCurrentStatusAll() {
+        $status = ServiceTestStatus::STATUS_EXPIRED;
+        $dtime = new ActiveRecord\DateTime(
+            date('c', time() - self::$testExpires));
         $expire = $dtime->format('db');
 
         $sql = <<<SQL
@@ -81,14 +140,13 @@ on
   and t.RUN_DATE = l.LAST_RUN_DATE
 SQL
             ;
-        var_dump($sql);
 
         return ServiceTestStatus::find_by_sql($sql);
     }
 
-    protected static function getExpired() {
+    protected static function getExpiredServices() {
         $dtime = new ActiveRecord\DateTime(
-            date('c', time() - ServiceTestController::$testExpires));
+            date('c', time() - self::$testExpires));
         $expire = $dtime->format('db');
 
 
@@ -117,7 +175,7 @@ SQL
         ServiceTestController::init();
 
         if ($force) {
-            $tests = ServiceTestController::getExpired();
+            $tests = self::getExpiredServices();
         } else {
             $tests = ServiceTest::find('all');
         }
@@ -141,7 +199,6 @@ SQL
 
         foreach($pass as $k => $v) {
             if (strpos($k, 'testResponseTime') > 0) {
-                var_dump($v);
                 $restime = intval($v['result']['time']);
                 $stat = $v['result']['degraded'] ? ServiceTestStatus::STATUS_DEGRADED : ServiceTestStatus::STATUS_OK;
             }

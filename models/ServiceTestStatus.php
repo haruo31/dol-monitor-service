@@ -10,5 +10,5 @@ class ServiceTestStatus extends Model {
 	const STATUS_DOWN = 'DOWN';
 	const STATUS_OK = 'OK';
 	const STATUS_DEGRADED = 'DEGRADED';
-	const STATUS_UNKNOWN = 'UNKNOWN';
+	const STATUS_EXPIRED = 'EXPIRED';
 }

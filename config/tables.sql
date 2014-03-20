@@ -1,8 +1,7 @@
 create table if not exists CONFIG_SERVICES (
     ID integer primary key,
-    CONFIG_NAME varchar(255),
-    SERVICE_TEST_ID integer,
-    unique (CONFIG_NAME)
+    NAME varchar(255),
+    SERVICE_TEST_ID integer
 )
 /
 
