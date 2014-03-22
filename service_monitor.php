@@ -51,7 +51,7 @@ $statuses = ServiceTestController::getCurrentStatus();
         } else if ($s->status == ServiceTestStatus::STATUS_DEGRADED) {
             $statLabel = '<span class="label label-danger">DEGRADED</span>';
         } else {
-            $statLabel = '<span class="label label-default">UNKNOWN</span>';
+            $statLabel = '<span class="label label-default">EXPIRED</span>';
         }
 
         $confs = ConfigService::find('all', array('conditions' =>

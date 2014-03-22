@@ -49,6 +49,22 @@ class ServiceTestController {
         }
     }
 
+    public static function isOk($cnf = null) {
+        if ($cnf == null) {
+            return FALSE;
+        }
+
+        $stats = self::getCurrentStatus($cnf);
+
+        foreach ($stats as $stat) {
+            if ($stat->status != ServiceTestStatus::STATUS_OK) {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
     public static function getCurrentStatus($cnf = null) {
         if ($cnf == null) {
             return self::getCurrentStatusAll();
@@ -58,7 +74,7 @@ class ServiceTestController {
             ConfigService::find('all', array('conditions' => array('name=?', $cnf))));
     }
 
-    protected static function getCurrentStatusByConfig(ConfigService $cnf) {
+    protected static function getCurrentStatusByConfig($cnf) {
         if ($cnf == null || count($cnf) < 1) {
             return array();
         }
@@ -89,13 +105,11 @@ from
   `SERVICE_TEST_STATUSES` t
 inner join
  (select
-    SERVICE_TEST_ID
-   ,max(RUN_DATE) as LAST_RUN_DATE
+    s.SERVICE_TEST_ID
+   ,max(s.RUN_DATE) as LAST_RUN_DATE
   from
     SERVICE_TEST_STATUSES s
-  inner join
-    CONFIG_SERVICES c
-  on
+  where
     s.SERVICE_TEST_ID in ({$ids})
   group by
     SERVICE_TEST_ID) l
