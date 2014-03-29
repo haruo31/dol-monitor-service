@@ -6,14 +6,18 @@
 
 ActiveRecord\Config::initialize(function ($cfg) {
     $cfg->set_model_directory(dirname(__FILE__) . '/../models');
-
 	// see http://phpactiverecord.org/docs/ActiveRecord/Config
     $cfg->set_connections(array('development' => 'sqlite://unix(/tmp/dolddatastore.db)'));
 });
 
+
 ServiceTestController::$initSql = dirname(__FILE__) . '/tables.sql';
+
+/// モニタサービスは、testExpiresの秒数を過ぎた設定について無視します。
+/// デフォルトは60秒ですがテストサイクルが長くなった場合など、
+/// 必要に応じて大きい数値にしてください。
+//ServiceTestController::$testExpires = 60;
 
 foreach (glob(dirname(__FILE__) . '/../service_tests/*Test.php') as $f) {
     ServiceTestController::serviceTestPreset($f);
 }
-
