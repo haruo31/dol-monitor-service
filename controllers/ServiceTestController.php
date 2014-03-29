@@ -58,7 +58,7 @@ class ServiceTestController {
             ConfigService::find('all', array('conditions' => array('name=?', $cnf))));
     }
 
-    protected static function getCurrentStatusByConfig(ConfigService $cnf) {
+    protected static function getCurrentStatusByConfig(array $cnf) {
         if ($cnf == null || count($cnf) < 1) {
             return array();
         }
@@ -89,16 +89,14 @@ from
   `SERVICE_TEST_STATUSES` t
 inner join
  (select
-    SERVICE_TEST_ID
+    s.SERVICE_TEST_ID
    ,max(RUN_DATE) as LAST_RUN_DATE
   from
     SERVICE_TEST_STATUSES s
-  inner join
-    CONFIG_SERVICES c
-  on
+  where
     s.SERVICE_TEST_ID in ({$ids})
   group by
-    SERVICE_TEST_ID) l
+    s.SERVICE_TEST_ID) l
 on
   t.SERVICE_TEST_ID = l.SERVICE_TEST_ID
   and t.RUN_DATE = l.LAST_RUN_DATE
