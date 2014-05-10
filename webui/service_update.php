@@ -17,8 +17,8 @@
     <div class="well">
 <?php
 
-      require_once dirname(__FILE__) . '/helper/autoload.php';
-require_once dirname(__FILE__) . '/config/config.php';
+      require_once dirname(__FILE__) . '/../helper/autoload.php';
+require_once dirname(__FILE__) . '/../config/config.php';
 
 ServiceTestController::updateAll();
 
@@ -27,14 +27,13 @@ ServiceTestController::updateAll();
     Update Succeeded.
     </h3>
     This page will be updated automatically.
-    <a href="./service_monitor.php" class="link link-default">Click here.</a>
+    <a href="./service_monitor.php" class="link link-default">Click here</a> if you see this message.
     </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"
+    <script type='text/javascript'
     >
+    window.location.href = './service_monitor.php';
     </script>
-    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"
-    >
     </script>
     </body>
     </html>

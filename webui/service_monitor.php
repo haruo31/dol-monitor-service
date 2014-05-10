@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <?php
 
-require_once dirname(__FILE__) . '/helper/autoload.php';
-require_once dirname(__FILE__) . '/config/config.php';
+require_once dirname(__FILE__) . '/../helper/autoload.php';
+require_once dirname(__FILE__) . '/../config/config.php';
 
 $statuses = ServiceTestController::getCurrentStatus();
 
@@ -62,6 +62,8 @@ $statuses = ServiceTestController::getCurrentStatus();
             $confLabel .= '<span class="label label-primary">' . $c->name . '</span>';
         }
 
+        $run_date = $s->run_date !== null ? $s->run_date->format('iso8601') : '----/--/--';
+
         echo <<<ML
           <tr>
             <td>
@@ -74,7 +76,7 @@ $statuses = ServiceTestController::getCurrentStatus();
               {$statLabel}
             </td>
             <td>
-              {$s->run_date->format('iso8601')}
+              {$run_date}
             </td>
             <td>
               <a href="#" class="btn btn-default btn-xs">Update</a>

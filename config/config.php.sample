@@ -12,7 +12,8 @@ ActiveRecord\Config::initialize(function ($cfg) {
 });
 
 
-ServiceTestController::$initSql = dirname(__FILE__) . '/tables.sql';
+// ServiceTestController::$initSql = dirname(__FILE__) . '/tables_mysql.sql';
+// ServiceTestController::$initSql = dirname(__FILE__) . '/tables_sqlite.sql';
 
 /// モニタサービスは、testExpiresの秒数を過ぎた設定について無視します。
 /// デフォルトは60秒ですがテストサイクルが長くなった場合など、

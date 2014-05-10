@@ -20,11 +20,11 @@ class ServiceTestController {
         return $name . ':' . hash('crc32b', $dir);
     }
 
-    protected static function init() {
+    public static function init() {
         $sqls = explode('/', preg_replace('/\s+/', ' ', file_get_contents(ServiceTestController::$initSql)));
         foreach ($sqls as $sql) {
             if ($sql != '' && $sql != ' ') {
-                ConfigService::connection()->query($sql);
+                ActiveRecord\Connection::instance()->query($sql);
             }
         }
 
@@ -90,33 +90,33 @@ class ServiceTestController {
             date('c', time() - self::$testExpires));
         $expire = $dtime->format('db');
 
-        $sql = <<<SQL
+        $sql = <<<sql
 select
-  t.ID
- ,t.SERVICE_TEST_ID
- ,t.RUN_DATE
+  t.id
+ ,t.service_test_id
+ ,t.run_date
  ,case
-  when RUN_DATE < '{$expire}'
+  when run_date < '{$expire}'
   then '{$status}'
-  else t.STATUS
-  end as STATUS
- ,t.RESPONSE_TIME
+  else t.status
+  end as status
+ ,t.response_time
 from
-  `SERVICE_TEST_STATUSES` t
+  `service_test_statuses` t
 inner join
  (select
-    s.SERVICE_TEST_ID
-   ,max(s.RUN_DATE) as LAST_RUN_DATE
+    s.service_test_id
+   ,max(s.run_date) as last_run_date
   from
-    SERVICE_TEST_STATUSES s
+    service_test_statuses s
   where
-    s.SERVICE_TEST_ID in ({$ids})
+    s.service_test_id in ({$ids})
   group by
-    s.SERVICE_TEST_ID) l
+    s.service_test_id) l
 on
-  t.SERVICE_TEST_ID = l.SERVICE_TEST_ID
-  and t.RUN_DATE = l.LAST_RUN_DATE
-SQL
+  t.service_test_id = l.service_test_id
+  and t.run_date = l.last_run_date
+sql
             ;
 
         return ServiceTestStatus::find_by_sql($sql);
@@ -128,31 +128,31 @@ SQL
             date('c', time() - self::$testExpires));
         $expire = $dtime->format('db');
 
-        $sql = <<<SQL
+        $sql = <<<sql
 select
-  t.ID
- ,t.SERVICE_TEST_ID
- ,t.RUN_DATE
+  t.id
+ ,t.service_test_id
+ ,t.run_date
  ,case
-  when RUN_DATE < '{$expire}'
+  when run_date < '{$expire}'
   then '{$status}'
-  else t.STATUS
-  end as STATUS
- ,t.RESPONSE_TIME
+  else t.status
+  end as status
+ ,t.response_time
 from
-  `SERVICE_TEST_STATUSES` t
+  `service_test_statuses` t
 inner join
  (select
-    SERVICE_TEST_ID
-   ,max(RUN_DATE) as LAST_RUN_DATE
+    service_test_id
+   ,max(run_date) as last_run_date
   from
-    SERVICE_TEST_STATUSES
+    service_test_statuses
   group by
-    SERVICE_TEST_ID) l
+    service_test_id) l
 on
-  t.SERVICE_TEST_ID = l.SERVICE_TEST_ID
-  and t.RUN_DATE = l.LAST_RUN_DATE
-SQL
+  t.service_test_id = l.service_test_id
+  and t.run_date = l.last_run_date
+sql
             ;
 
         return ServiceTestStatus::find_by_sql($sql);
@@ -168,26 +168,24 @@ SQL
 select
   t.*
 from
-  `SERVICE_TESTS` t
+  `service_tests` t
 inner join
  (select
-    SERVICE_TEST_ID
-   ,max(RUN_DATE) as LAST_RUN_DATE
+    service_test_id
+   ,max(run_date) as last_run_date
   from
-    SERVICE_TEST_STATUSES
+    service_test_statuses
   group by
-    SERVICE_TEST_ID
+    service_test_id
   having
-    LAST_RUN_DATE < '{$expire}') l
+    last_run_date < '{$expire}') l
 on
-  t.ID = l.SERVICE_TEST_ID
+  t.id = l.service_test_id
 SQL
 );
     }
 
     public static function updateAll($force = false) {
-        ServiceTestController::init();
-
         if ($force) {
             $tests = self::getExpiredServices();
         } else {
