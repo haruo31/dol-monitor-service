@@ -1,14 +1,14 @@
 [submodule "lib/php-timer"]
 	path = lib/php-timer
-	url = git@github.com:sebastianbergmann/php-timer.git
+	url = https://github.com/sebastianbergmann/php-timer.git
 [submodule "lib/langrid-php-library"]
 	path = lib/langrid-php-library
-	url = git@github.com:haruo31/langrid-php-library.git
+	url = https://github.com/haruo31/langrid-php-library.git
 [submodule "lib/php-code-coverage"]
 	path = lib/php-code-coverage
-	url = git@github.com:sebastianbergmann/php-code-coverage.git
+	url = https://github.com/sebastianbergmann/php-code-coverage.git
 	branch = 2.0
 [submodule "lib/phpunit"]
 	path = lib/phpunit
-	url = git@github.com:sebastianbergmann/phpunit.git
+	url = https://github.com/sebastianbergmann/phpunit.git
 	branch = 3.7
